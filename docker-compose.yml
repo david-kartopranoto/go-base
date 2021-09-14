@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+  postgres-db:
+    image: postgres
+    restart: always
+    env_file: .env_postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file: .env_app
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres-db
