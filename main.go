@@ -20,21 +20,24 @@ func main() {
 		log.Fatal("Cannot load config:", err)
 	}
 
+	metricService, err := util.NewPrometheusService()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	router := gin.Default()
 
 	conn := initDB(config)
 	userRepo := repository.NewUserSQL(conn)
 	userService := user.NewService(userRepo)
 
+	router.Use(rest.HistogramMiddleware(metricService))
 	rest.MakeUserHandlers(router, userService)
+	rest.MakeMetricsHandlers(router, metricService)
 
-	router.GET("/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Welcome to %s", c.FullPath())
-	})
-
-	router.GET("/ping", func(c *gin.Context) {
+	router.GET("/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"DB": conn.Stats(),
 		})
 	})
 
