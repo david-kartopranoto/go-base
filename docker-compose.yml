@@ -1,19 +1,21 @@
-version: "3.9"
+version: "3"
 services:
   postgres-db:
-    image: postgres
+    build:
+      context: .
+      dockerfile: db.Dockerfile
     restart: always
-    env_file: .env_postgres
+    env_file: .env-postgres
     ports:
       - "5432:5432"
-    volumes:
-      - ./db:/docker-entrypoint-initdb.d/
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file: .env_app
+    env_file: .env-app
     ports:
       - "8080:8080"
     depends_on:
       - postgres-db
+    labels:
+      kompose.service.type: NodePort

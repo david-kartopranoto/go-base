@@ -1,0 +1,10 @@
+apiVersion: v1
+data:
+  GET_HOSTS_FROM: dns
+  GIN_MODE: release
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  labels:
+    io.kompose.service: app-env-app
+  name: env-app
