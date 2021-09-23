@@ -37,7 +37,8 @@ func main() {
 
 	router.GET("/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"DB": conn.Stats(),
+			"DB":     conn.Stats(),
+			"config": config,
 		})
 	})
 
