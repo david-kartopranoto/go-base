@@ -5,7 +5,8 @@ import (
 )
 
 type Config struct {
-	DB DBConfig `mapstructure:"db"`
+	DB            DBConfig            `mapstructure:"db"`
+	MessageBroker MessageBrokerConfig `mapstructure:"message-broker"`
 }
 
 type DBConfig struct {
@@ -17,10 +18,25 @@ type DBConfig struct {
 	SSLMode  string `mapstructure:"sslmode"`
 }
 
+type MessageBrokerConfig struct {
+	Host     string                 `mapstructure:"host"`
+	Port     string                 `mapstructure:"port"`
+	User     string                 `mapstructure:"user"`
+	Password string                 `mapstructure:"password"`
+	Queue    map[string]QueueConfig `mapstructure:"queue"`
+}
+
+type QueueConfig struct {
+	Durable      bool `mapstructure:"durable"`
+	DeleteUnused bool `mapstructure:"delete-unused"`
+	Exclusive    bool `mapstructure:"exclusive"`
+	NoWait       bool `mapstructure:"no-wait"`
+}
+
 // LoadConfig reads configuration from file or environment variables.
-func LoadConfig(path string) (config Config, err error) {
+func LoadConfig(path string, name string) (config Config, err error) {
 	viper.AddConfigPath(path)
-	viper.SetConfigName("app")
+	viper.SetConfigName(name)
 	viper.SetConfigType("yaml")
 
 	viper.AutomaticEnv()

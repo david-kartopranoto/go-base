@@ -8,14 +8,25 @@ services:
     env_file: .env-postgres
     ports:
       - "5432:5432"
+  
   app:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: app.Dockerfile
+    restart: on-failure
     env_file: .env-app
     ports:
       - "8080:8080"
     depends_on:
-      - postgres-db
-    labels:
-      kompose.service.type: NodePort
+      postgres-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    env_file: .env-rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    restart: always
