@@ -22,6 +22,18 @@ services:
         condition: service_started
       rabbitmq:
         condition: service_started
+  
+  consumer:
+    build:
+      context: .
+      dockerfile: consumer.Dockerfile
+    restart: on-failure
+    env_file: .env-consumer
+    depends_on:
+      postgres-db:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
