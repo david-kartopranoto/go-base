@@ -1,7 +1,7 @@
 FROM golang:1.17-alpine
 
 # Set destination for COPY
-WORKDIR /app
+WORKDIR /root
 
 # Download Go modules
 COPY go.mod .
@@ -10,7 +10,7 @@ RUN go mod download
 
 # Copy the source code. Note the slash at the end, as explained in
 # https://docs.docker.com/engine/reference/builder/#copy
-COPY *.go ./
+COPY cmd/http/ ./
 COPY entity/ ./entity/
 COPY repository/ ./repository/
 COPY usecase/ ./usecase/
@@ -19,7 +19,7 @@ COPY rest/ ./rest/
 COPY config/app.yaml ./config/app.yaml
 
 # Build
-RUN go build -o /go-base-main
+RUN go build -o /app ./main.go
 
 # Run
-CMD [ "/go-base-main" ]
+CMD [ "/app" ]

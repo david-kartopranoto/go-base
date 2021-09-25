@@ -1,16 +1,24 @@
-build:
+build-app:
 	go mod tidy
 	go test ./... -v -coverpkg=./...
-	go build .
+	go build -o app ./cmd/http/main.go
 
 test:
 	go test ./... -v -coverpkg=./...
 
-run:
-	go run main.go
+run-app:
+	go run ./cmd/http/main.go
 
-d-build:
-	docker build -t go-base .
+d-build-app:
+	docker build -t localhost/app -f app.Dockerfile .
+
+d-run-app:
+	docker run --publish 8080:8080 localhost/app
+	
+d-prune:
+	docker rm `docker ps --no-trunc -aq`
+	docker image prune --all --filter "until=120h"
+	docker images | grep none | awk '{ print $3; }' | xargs docker rmi
 
 c-up:
 	docker-compose up --build
@@ -30,7 +38,7 @@ kube-start:
 	minikube start
 
 kube-apply:
-	docker build -t localhost/app -f Dockerfile .
+	docker build -t localhost/app -f app.Dockerfile .
 	docker image tag localhost/app:latest dkartopr/app:latest
 	docker build -t localhost/db -f db.Dockerfile .
 	docker image tag localhost/db:latest dkartopr/db:latest

@@ -15,9 +15,14 @@ import (
 )
 
 func main() {
-	config, err := util.LoadConfig("./config")
+	config, err := util.LoadConfig("./config", "app")
 	if err != nil {
 		log.Fatal("Cannot load config:", err)
+	}
+
+	brokerService, err := util.NewRabbitMQService(config)
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	metricService, err := util.NewPrometheusService()
@@ -32,7 +37,7 @@ func main() {
 	userService := user.NewService(userRepo)
 
 	router.Use(rest.HistogramMiddleware(metricService))
-	rest.MakeUserHandlers(router, userService)
+	rest.MakeUserHandlers(router, userService, brokerService)
 	rest.MakeMetricsHandlers(router, metricService)
 
 	router.GET("/healthcheck", func(c *gin.Context) {
