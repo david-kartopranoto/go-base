@@ -1,0 +1,19 @@
+db:
+    host: postgres-db
+    port: 5432
+    name: dev
+    user: postgres-dev
+    password: password
+    sslmode: disable
+
+message-broker:
+    host: rabbitmq
+    port: 5672
+    user: guest
+    password: guest
+    queue:
+        - user-register:
+            durable: false
+            delete-unused: false
+            exclusive: false
+            no-wait: false

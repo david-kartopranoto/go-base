@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"strings"
 
 	"github.com/david-kartopranoto/go-base/entity"
@@ -40,4 +41,21 @@ func (s *Service) SearchUsers(query string) ([]*entity.User, error) {
 //ListUsers List users
 func (s *Service) ListUsers() ([]*entity.User, error) {
 	return s.repo.List()
+}
+
+//Consume register user
+func (s *Service) ConsumeRegister(body []byte) error {
+	var u entity.User
+	err := json.Unmarshal(body, &u)
+	if err != nil {
+		return err
+	}
+
+	e, err := entity.NewUser(u.Email, u.Password, u.Username)
+	if err != nil {
+		return err
+	}
+
+	_, err = s.repo.Create(e)
+	return err
 }

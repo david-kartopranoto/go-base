@@ -30,4 +30,5 @@ type UseCase interface {
 	SearchUsers(query string) ([]*entity.User, error)
 	ListUsers() ([]*entity.User, error)
 	Register(email, password, username string) (int64, error)
+	ConsumeRegister(body []byte) error
 }

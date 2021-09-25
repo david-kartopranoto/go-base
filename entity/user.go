@@ -7,6 +7,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const RegisterQueue = "user-register"
+
+type UserBrokerProvider interface {
+	Publish(queue string, body interface{}) error
+}
+
 //User data
 type User struct {
 	ID        int64
