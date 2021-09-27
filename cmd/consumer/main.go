@@ -7,8 +7,10 @@ import (
 
 	"github.com/david-kartopranoto/go-base/entity"
 	"github.com/david-kartopranoto/go-base/repository"
+	"github.com/david-kartopranoto/go-base/rest"
 	"github.com/david-kartopranoto/go-base/usecase/user"
 	"github.com/david-kartopranoto/go-base/util"
+	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 )
 
@@ -18,7 +20,12 @@ func main() {
 		log.Fatal("Cannot load config:", err)
 	}
 
-	brokerService, err := util.NewRabbitMQService(config)
+	metricService, err := util.NewPrometheusService()
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	brokerService, err := util.NewRabbitMQService(config, metricService)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -27,13 +34,15 @@ func main() {
 	userRepo := repository.NewUserSQL(conn)
 	userService := user.NewService(userRepo)
 
-	fmt.Println(brokerService, userService)
-
 	stopChan := make(chan bool)
 
 	brokerService.Consume(entity.RegisterQueue, stopChan, userService.ConsumeRegister)
 
-	<-stopChan
+	router := gin.Default()
+
+	rest.MakeMetricsHandlers(router, metricService)
+
+	router.Run()
 }
 
 func initDB(config util.Config) *sql.DB {
