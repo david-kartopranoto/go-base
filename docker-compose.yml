@@ -39,8 +39,12 @@ services:
       dockerfile: consumer.Dockerfile
     restart: on-failure
     env_file: .env-consumer
+    ports:
+      - "8081:8080"
     depends_on:
       postgres-db:
+        condition: service_started
+      bouncer:
         condition: service_started
       rabbitmq:
         condition: service_started

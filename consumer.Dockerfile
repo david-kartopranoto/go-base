@@ -15,6 +15,7 @@ COPY entity/ ./entity/
 COPY repository/ ./repository/
 COPY usecase/ ./usecase/
 COPY util/ ./util/
+COPY rest/ ./rest/
 COPY config/consumer.yaml ./config/consumer.yaml
 
 # Build

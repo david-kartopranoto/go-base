@@ -4,19 +4,25 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/streadway/amqp"
 )
+
+type MetricProvider interface {
+	SaveHistogram(handler, method, statusCode string, duration float64)
+}
 
 //MessageBrokerService implements MessageBrokerService interface
 type MessageBrokerService struct {
 	conn   *amqp.Connection
 	ch     *amqp.Channel
 	queues map[string]amqp.Queue
+	metric MetricProvider
 }
 
 //NewRabbitService create a new rabbit mq service
-func NewRabbitMQService(config Config) (*MessageBrokerService, error) {
+func NewRabbitMQService(config Config, metric MetricProvider) (*MessageBrokerService, error) {
 	host := fmt.Sprintf("amqp://%s:%s@%s:%s/",
 		config.MessageBroker.User,
 		config.MessageBroker.Password,
@@ -58,13 +64,23 @@ func NewRabbitMQService(config Config) (*MessageBrokerService, error) {
 		conn:   conn,
 		ch:     ch,
 		queues: queues,
+		metric: metric,
 	}
 
 	return s, nil
 }
 
 func (s *MessageBrokerService) Publish(queue string, body interface{}) error {
-	b, err := json.Marshal(body)
+	var err error
+	start := time.Now()
+
+	defer func(t time.Time, e error) {
+		duration := time.Since(t).Seconds()
+		s.metric.SaveHistogram("Publish", queue, fmt.Sprintln(e), duration)
+	}(start, err)
+
+	var b []byte
+	b, err = json.Marshal(body)
 	if err != nil {
 		return err
 	}
@@ -74,13 +90,15 @@ func (s *MessageBrokerService) Publish(queue string, body interface{}) error {
 		Body:        b,
 	}
 
-	return s.ch.Publish(
+	err = s.ch.Publish(
 		"",
 		queue,
 		false,
 		false,
 		message,
 	)
+
+	return err
 }
 
 func (s *MessageBrokerService) Consume(queue string, stopChan chan bool, process func([]byte) error) error {
@@ -96,19 +114,25 @@ func (s *MessageBrokerService) Consume(queue string, stopChan chan bool, process
 
 	go func() {
 		for d := range qChannel {
+			var errP error
+			start := time.Now()
+
 			log.Printf("Received a message: %s", d.Body)
-
-			err := process(d.Body)
-
-			if err != nil {
-				log.Printf("Error decoding JSON: %s", err)
+			errP = process(d.Body)
+			if errP != nil {
+				log.Printf("Error decoding JSON: %s", errP)
 			}
+			duration := time.Since(start).Seconds()
+			s.metric.SaveHistogram("Consume-Process", queue, fmt.Sprintf("%v", errP), duration)
 
-			if err := d.Ack(false); err != nil {
-				log.Printf("Error acknowledging message : %s", err)
+			start = time.Now()
+			if errP = d.Ack(false); errP != nil {
+				log.Printf("Error acknowledging message : %s", errP)
 			} else {
 				log.Printf("Acknowledged message")
 			}
+			duration = time.Since(start).Seconds()
+			s.metric.SaveHistogram("Consume-Ack", queue, fmt.Sprintf("%v", errP), duration)
 
 		}
 	}()

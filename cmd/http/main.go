@@ -20,12 +20,12 @@ func main() {
 		log.Fatal("Cannot load config:", err)
 	}
 
-	brokerService, err := util.NewRabbitMQService(config)
+	metricService, err := util.NewPrometheusService()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	metricService, err := util.NewPrometheusService()
+	brokerService, err := util.NewRabbitMQService(config, metricService)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
