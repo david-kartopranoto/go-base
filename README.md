@@ -15,6 +15,11 @@ Base template for other go projects
 **Rabbit**
 1. https://x-team.com/blog/set-up-rabbitmq-with-docker-compose/
 
+**PgBouncer**
+1. https://www.compose.com/articles/how-to-pool-postgresql-connections-with-pgbouncer/
+2. https://hub.docker.com/r/edoburu/pgbouncer
+3. `psql postgres://postgres-dev:password@localhost/pgbouncer`
+
 ## Running
 
 ```

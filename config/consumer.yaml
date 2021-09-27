@@ -1,5 +1,5 @@
 db:
-    host: postgres-db
+    host: bouncer
     port: 5432
     name: dev
     user: postgres-dev

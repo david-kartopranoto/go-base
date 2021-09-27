@@ -6,8 +6,16 @@ services:
       dockerfile: db.Dockerfile
     restart: always
     env_file: .env-postgres
+  
+  bouncer:
+    image: edoburu/pgbouncer
+    restart: always
+    env_file: .env-bouncer
     ports:
       - "5432:5432"
+    depends_on:
+      postgres-db:
+        condition: service_started
   
   app:
     build:
@@ -19,6 +27,8 @@ services:
       - "8080:8080"
     depends_on:
       postgres-db:
+        condition: service_started
+      bouncer:
         condition: service_started
       rabbitmq:
         condition: service_started
