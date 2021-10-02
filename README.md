@@ -26,8 +26,18 @@ Base template for other go projects
 docker-compose up --build
 ```
 
+**Using K8s**
+1. Update run `kompose convert` to update the k8s files
+2. Update files and also the `kube-apply` section in the `Makefile` with the latest k8s files
+3. run `make kube-start` (if it's not running yet)
+4. Login to your docker account
+5. run `make kube-apply`
+6. run `make kube-list` to list out the service running
+7. use the returned `URL` accordingly
+
 **Sample Curl**
 ```
 curl -X GET http://localhost:8080/v1/user/list
 curl -X POST -F 'username=linuxize' -F 'email=linuxize@example.com' -F 'password=dummy' http://localhost:8080/v2/user/register
+
 ```

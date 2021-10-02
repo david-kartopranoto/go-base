@@ -13,10 +13,7 @@ services:
     env_file: .env-bouncer
     ports:
       - "5432:5432"
-    depends_on:
-      postgres-db:
-        condition: service_started
-  
+    
   app:
     build:
       context: .
@@ -25,14 +22,7 @@ services:
     env_file: .env-app
     ports:
       - "8080:8080"
-    depends_on:
-      postgres-db:
-        condition: service_started
-      bouncer:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
-  
+    
   consumer:
     build:
       context: .
@@ -41,14 +31,7 @@ services:
     env_file: .env-consumer
     ports:
       - "8081:8080"
-    depends_on:
-      postgres-db:
-        condition: service_started
-      bouncer:
-        condition: service_started
-      rabbitmq:
-        condition: service_started
-
+    
   rabbitmq:
     image: rabbitmq:3-management-alpine
     env_file: .env-rabbit
