@@ -20,6 +20,9 @@ Base template for other go projects
 2. https://hub.docker.com/r/edoburu/pgbouncer
 3. `psql postgres://postgres-dev:password@localhost/pgbouncer`
 
+**Vegeta**
+1. https://www.scaleway.com/en/docs/tutorials/load-testing-vegeta/
+
 ## Running
 
 ```

@@ -25,6 +25,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	limiterService, err := util.NewLimiterService(config)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	brokerService, err := util.NewRabbitMQService(config, metricService)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -37,6 +42,7 @@ func main() {
 	userService := user.NewService(userRepo)
 
 	router.Use(rest.HistogramMiddleware(metricService))
+	router.Use(rest.LimiterMiddleware(limiterService))
 	rest.MakeUserHandlers(router, userService, brokerService)
 	rest.MakeMetricsHandlers(router, metricService)
 

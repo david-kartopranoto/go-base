@@ -17,3 +17,7 @@ message-broker:
             delete-unused: false
             exclusive: false
             no-wait: false
+
+limiter:
+    maxEventsPerSec: 1000
+    maxBurstSize: 20

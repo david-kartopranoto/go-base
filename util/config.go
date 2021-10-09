@@ -7,6 +7,7 @@ import (
 type Config struct {
 	DB            DBConfig            `mapstructure:"db"`
 	MessageBroker MessageBrokerConfig `mapstructure:"message-broker"`
+	Limiter       LimiterConfig       `mapstructure:"limiter"`
 }
 
 type DBConfig struct {
@@ -31,6 +32,11 @@ type QueueConfig struct {
 	DeleteUnused bool `mapstructure:"delete-unused"`
 	Exclusive    bool `mapstructure:"exclusive"`
 	NoWait       bool `mapstructure:"no-wait"`
+}
+
+type LimiterConfig struct {
+	MaxEventsPerSec int `mapstructure:"maxEventsPerSec"`
+	MaxBurstSize    int `mapstructure:"maxBurstSize"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
