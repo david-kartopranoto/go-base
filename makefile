@@ -66,3 +66,8 @@ kube-apply:
 
 kube-list:
 	minikube service list
+
+vegeta-go:
+	echo "GET http://localhost:8080/healthcheck" | vegeta attack -duration=5s -rate=100/s | vegeta encode > results_hc.json
+	echo "GET http://localhost:8080/v1/user/list" | vegeta attack -duration=5s -rate=100/s | vegeta encode > results_usr.json
+	vegeta report results*.json
