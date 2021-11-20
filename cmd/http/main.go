@@ -35,6 +35,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
+	authService, err := util.NewAuthService(config)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	router := gin.Default()
 
 	conn := initDB(config)
@@ -43,13 +48,13 @@ func main() {
 
 	router.Use(rest.HistogramMiddleware(metricService))
 	router.Use(rest.LimiterMiddleware(limiterService))
-	rest.MakeUserHandlers(router, userService, brokerService)
+	rest.MakeUserHandlers(router, userService, brokerService, authService)
 	rest.MakeMetricsHandlers(router, metricService)
+	rest.MakeAuthHandlers(router, authService)
 
 	router.GET("/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
-			"DB":     conn.Stats(),
-			"config": config,
+			"DB": conn.Stats(),
 		})
 	})
 

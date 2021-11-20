@@ -17,7 +17,13 @@ type LimiterProvider interface {
 	GetDefaultError() (error, int)
 }
 
-//MakeMetricsHandlers make url handlers
+type AuthProvider interface {
+	Allow(header http.Header) bool
+	GetDefaultError() (error, int)
+	GenerateJWT() (string, error)
+}
+
+//MakeMetricsHandlers make metrics handlers
 func MakeMetricsHandlers(r *gin.Engine, service MetricProvider) {
 	r.GET("/metrics", func(c *gin.Context) {
 		service.Handler().ServeHTTP(c.Writer, c.Request)
@@ -48,4 +54,31 @@ func LimiterMiddleware(limiter LimiterProvider) gin.HandlerFunc {
 		c.Error(err)
 		c.AbortWithStatus(status)
 	}
+}
+
+// AuthMiddleware for rate limiter
+func AuthMiddleware(auth AuthProvider) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if auth.Allow(c.Request.Header) {
+			c.Next()
+			return
+		}
+
+		err, status := auth.GetDefaultError()
+		c.Error(err)
+		c.AbortWithStatus(status)
+	}
+}
+
+//MakeAuthHandlers make auth handlers
+func MakeAuthHandlers(r *gin.Engine, auth AuthProvider) {
+	r.GET("/token", func(c *gin.Context) {
+		token, err := auth.GenerateJWT()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"message": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"token": token})
+	})
 }
