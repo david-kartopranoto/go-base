@@ -21,3 +21,8 @@ message-broker:
 limiter:
     maxEventsPerSec: 1000
     maxBurstSize: 20
+
+auth:
+    signingKey: supersecretkey
+    expiryTime: 60
+    client: default_client

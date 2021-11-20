@@ -40,7 +40,11 @@ docker-compose up --build
 
 **Sample Curl**
 ```
-curl -X GET http://localhost:8080/v1/user/list
+curl --location --request GET 'http://localhost:8080/token'
+
+curl --location --request GET 'http://localhost:8080/secure/v1/user/list' \
+--header 'token: TOKEN'
+
 curl -X POST -F 'username=linuxize' -F 'email=linuxize@example.com' -F 'password=dummy' http://localhost:8080/v2/user/register
 
 ```

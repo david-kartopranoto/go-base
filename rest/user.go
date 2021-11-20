@@ -86,10 +86,14 @@ func registerUserV2(service entity.UserBrokerProvider) func(c *gin.Context) {
 }
 
 //MakeUserHandlers make url handlers
-func MakeUserHandlers(r *gin.Engine, service user.UseCase, broker entity.UserBrokerProvider) {
-	r.GET("/v1/user/:id", getUser(service))
-	r.GET("/v1/user/list", listUsers(service))
-	r.POST("/v1/user/search", searchUser(service))
+func MakeUserHandlers(r *gin.Engine, service user.UseCase, broker entity.UserBrokerProvider, auth AuthProvider) {
 	r.POST("/v1/user/register", registerUser(service))
 	r.POST("/v2/user/register", registerUserV2(broker))
+
+	secure := r.Group("/secure").Use(AuthMiddleware(auth))
+	{
+		secure.GET("/v1/user/:id", getUser(service))
+		secure.GET("/v1/user/list", listUsers(service))
+		secure.POST("/v1/user/search", searchUser(service))
+	}
 }

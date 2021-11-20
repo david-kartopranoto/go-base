@@ -8,6 +8,7 @@ type Config struct {
 	DB            DBConfig            `mapstructure:"db"`
 	MessageBroker MessageBrokerConfig `mapstructure:"message-broker"`
 	Limiter       LimiterConfig       `mapstructure:"limiter"`
+	Auth          AuthConfig          `mapstructure:"auth"`
 }
 
 type DBConfig struct {
@@ -37,6 +38,12 @@ type QueueConfig struct {
 type LimiterConfig struct {
 	MaxEventsPerSec int `mapstructure:"maxEventsPerSec"`
 	MaxBurstSize    int `mapstructure:"maxBurstSize"`
+}
+
+type AuthConfig struct {
+	SigningKey string `mapstructure:"signingKey"`
+	ExpiryTime int    `mapstructure:"expiryTime"`
+	Client     string `mapstructure:"client"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
